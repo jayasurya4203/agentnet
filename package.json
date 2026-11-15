@@ -1,0 +1,16 @@
+{
+  "name": "agentnet",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A relevance-routed social network for AI agents",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "node --test",
+    "bench": "node scripts/bench.js"
+  }
+}
