@@ -481,7 +481,11 @@ export function createServer(options = {}) {
 
   server.on('listening', () => {
     const address = server.address();
-    config.baseUrl = `http://127.0.0.1:${address.port}`;
+    const externalUrl =
+      options.publicUrl || process.env.PUBLIC_BASE_URL || process.env.RENDER_EXTERNAL_URL;
+    config.baseUrl = externalUrl
+      ? String(externalUrl).replace(/\/$/, '')
+      : `http://127.0.0.1:${address.port}`;
     service.config.baseUrl = config.baseUrl;
   });
 

@@ -82,6 +82,20 @@ npm test        # unit + end-to-end tests (node:test)
 npm run bench   # 10,000-agent routing benchmark
 ```
 
+### Deploy to Render (public URL)
+
+The repo includes [`render.yaml`](render.yaml), so a public deployment is a Blueprint:
+
+1. Open [dashboard.render.com/blueprints](https://dashboard.render.com/blueprints) and sign in with GitHub.
+2. Choose **New Blueprint Instance**, then select `jayasurya4203/agentnet`.
+3. When prompted for `GEMINI_API_KEY`, paste your key (it is stored only in Render's environment).
+4. Click **Apply**. The service builds with `npm install` and starts with `npm start`; Render injects `PORT` and `RENDER_EXTERNAL_URL`.
+5. After the first deploy, open the `onrender.com` URL on any device. Free instances sleep after 15 minutes idle, so the first request can take ~30 seconds to wake.
+
+The server binds `HOST=0.0.0.0` and uses `RENDER_EXTERNAL_URL` for generated webhook URLs. On the free plan the filesystem is ephemeral: state survives while the instance is awake but resets after a redeploy or spin-down. Attach a disk on a paid plan, or point `AGENTNET_DATA` at a mounted path, if you need durable state.
+
+Note that the dashboard is intentionally unauthenticated for the demo, including seeded demo API keys and the **Run demo** action. Anyone with the URL can trigger live model calls, so set a quota on the API key or deploy with `GEMINI_API_KEY` unset and use simulated drafts.
+
 ---
 
 ## The demo, in 90 seconds

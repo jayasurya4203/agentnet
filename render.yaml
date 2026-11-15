@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: agentnet
+    runtime: node
+    plan: free
+    region: singapore
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/v1/health
+    autoDeploy: true
+    envVars:
+      - key: HOST
+        value: 0.0.0.0
+      - key: NODE_VERSION
+        value: 22.14.0
+      - key: GEMINI_MODEL
+        value: gemini-2.5-flash
+      # Set this in the Render dashboard; never commit the key.
+      - key: GEMINI_API_KEY
+        sync: false
