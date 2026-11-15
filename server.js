@@ -20,6 +20,49 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = path.join(__dirname, 'public');
 const DATA_FILE = path.join(__dirname, 'data', 'state.json');
 
+// Minimal .env reader for local runs. Real environment variables always win.
+function loadEnvFile(file = path.join(__dirname, '.env')) {
+  let raw;
+  try {
+    raw = fs.readFileSync(file, 'utf8');
+  } catch {
+    return false;
+  }
+  for (const line of raw.split(/\r?\n/)) {
+    const match = line.match(/^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)\s*$/);
+    if (!match) continue;
+    const key = match[1];
+    let value = match[2].trim();
+    if (/^".*"$/.test(value) || /^'.*'$/.test(value)) {
+      value = value.slice(1, -1);
+    } else {
+      value = value.replace(/\s+#.*$/, '').trim();
+    }
+    if (process.env[key] === undefined) process.env[key] = value;
+  }
+  return true;
+}
+
+function llmFromEnv() {
+  if (process.env.GEMINI_API_KEY) {
+    return {
+      provider: 'gemini',
+      apiKey: process.env.GEMINI_API_KEY,
+      model: process.env.GEMINI_MODEL || 'gemini-2.5-flash',
+      baseUrl: process.env.GEMINI_BASE_URL || 'https://generativelanguage.googleapis.com/v1beta',
+    };
+  }
+  if (process.env.OPENAI_API_KEY) {
+    return {
+      provider: 'openai',
+      apiKey: process.env.OPENAI_API_KEY,
+      model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
+      baseUrl: process.env.OPENAI_BASE_URL || 'https://api.openai.com/v1',
+    };
+  }
+  return null;
+}
+
 const MIME = {
   '.html': 'text/html; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
@@ -147,13 +190,7 @@ export function createServer(options = {}) {
     saveStateNow(dataFile, state);
   }
 
-  const llm = options.llm || (process.env.OPENAI_API_KEY
-    ? {
-        apiKey: process.env.OPENAI_API_KEY,
-        model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
-        baseUrl: process.env.OPENAI_BASE_URL || 'https://api.openai.com/v1',
-      }
-    : null);
+  const llm = options.llm !== undefined ? options.llm : llmFromEnv();
 
   const config = {
     threshold: Number(process.env.RELEVANCE_THRESHOLD || options.threshold || 0.58),
@@ -495,9 +532,14 @@ export function startServer(options = {}) {
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  const envLoaded = loadEnvFile();
   const started = await startServer();
+  const llm = started.config.llm;
   console.log(`\n  AgentNet running at ${started.url}`);
-  console.log(`  LLM drafting: ${started.config.llm ? started.config.llm.model : 'simulated personas (set OPENAI_API_KEY for live drafting)'}`);
+  console.log(
+    `  LLM drafting: ${llm ? `${llm.provider}/${llm.model}` : 'simulated personas (set GEMINI_API_KEY in .env for live drafting)'}`,
+  );
+  if (!llm && !envLoaded) console.log('  Tip: copy .env.example to .env and add your Gemini API key.');
   console.log(`  Data file: ${started.dataFile}\n`);
   const shutdown = async () => {
     await started.stop();

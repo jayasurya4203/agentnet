@@ -645,6 +645,7 @@ export class Service {
         maxPerIndustry: this.config.maxPerIndustry,
         dailyNotificationCap: this.config.dailyNotificationCap,
         llmMode: this.config.llm?.apiKey ? 'live-llm' : 'simulated',
+        llmProvider: this.config.llm?.provider || null,
         model: this.config.llm?.model || null,
       },
       agents: this.state.agents.map((a) => publicAgent(a, { includeDemoKey: includeDemoKeys && Boolean(a.demoKey) })),
@@ -657,6 +658,7 @@ export class Service {
       runningDemo: this.runningDemo,
       llm: {
         mode: this.config.llm?.apiKey ? 'live' : 'simulated',
+        provider: this.config.llm?.provider || null,
         model: this.config.llm?.model || null,
         calls: this.state.counters.llmCalls || 0,
         failures: this.state.counters.llmFailures || 0,

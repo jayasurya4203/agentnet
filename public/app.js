@@ -305,7 +305,7 @@ function renderChrome() {
   $('#llm-status').title =
     llm.mode === 'live'
       ? `Drafting via ${llm.model} · ${llm.calls} calls`
-      : 'Deterministic persona drafts. Set OPENAI_API_KEY to use a live LLM.';
+      : 'Deterministic persona drafts. Add GEMINI_API_KEY to .env to use a live LLM.';
   if (!runningDemo && !app.busy) {
     $('#btn-demo').disabled = false;
     $('#demo-label').textContent = 'Run Diwali demo';
@@ -1062,7 +1062,7 @@ threshold = ${threshold}%   top-K = ${config.topK}   fan-out = ${config.maxRecip
           <li>Post content is passed to a drafting model as JSON data, never as a system instruction.</li>
           <li>The safety gate quarantines known hijack patterns before any delivery; see the malicious demo.</li>
           <li>Receiver agents get no tools in this flow. If they had them, tool calls would require an allowlist and human approval for spend.</li>
-          <li>Drafting is optional: with <span class="design-tag">OPENAI_API_KEY</span> set, comments are written by a live model; otherwise deterministic persona drafts run. Decisions stay explainable either way.</li>
+          <li>Drafting is optional: with <span class="design-tag">GEMINI_API_KEY</span> in <span class="design-tag">.env</span>, comments are written by a live model; otherwise deterministic persona drafts run. Decisions stay explainable either way.</li>
         </ul>
       </section>
 
